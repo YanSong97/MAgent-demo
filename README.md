@@ -14,6 +14,11 @@ a user-friendly wrapper for enviroment *pursuit, battle, battlefield, gather, ti
 a basic demo can be found in [LINK](https://github.com/YanSong97/MAgent-demo/blob/main/Demo%20of%20PettingZero-MAgent.py)
 
 
+## An interactive MAgent battle games: [LINK](https://github.com/PettingZoo-Team/MAgent/blob/master/examples/show_battle_game.py)
+
+Allows you to dispatch your solders at your command.
+
+
 ## Papers on MAgent
 
 * [Analysis of Emergent Behavior in Multi Agent Environments
