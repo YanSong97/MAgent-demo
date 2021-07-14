@@ -1,4 +1,4 @@
-
+# requirement: pettingzoo library, use pip install pettingzoo
 
 
 from pettingzoo.magent import adversarial_pursuit_v3
