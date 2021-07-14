@@ -4,6 +4,12 @@ a few attempts on env [MAgent](https://github.com/PettingZoo-Team/MAgent)
 
 DQN model taken from repo: [Jidi AI](https://github.com/jidiai/ai_lib/tree/master/examples/algo/dqn)
 
+# PettingZero-MAgent wrapper
+
+a user-friendly wrapper for enviroment *pursuit, battle, battlefield, gather, tiger_deer*. [Repo LINK](https://github.com/PettingZoo-Team/PettingZoo/tree/master/pettingzoo/magent)
+
+**Requirement**: pettingzoo base library, simply using `pip install pettingzoo ` , a basic demo can be found in [LINK](https://github.com/YanSong97/MAgent-demo/blob/main/Demo%20of%20PettingZero-MAgent.py)
+
 
 ## Papers on MAgent
 
