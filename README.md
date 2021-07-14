@@ -13,6 +13,8 @@ a user-friendly wrapper for enviroment *pursuit, battle, battlefield, gather, ti
 
 a basic demo can be found in [LINK](https://github.com/YanSong97/MAgent-demo/blob/main/Demo%20of%20PettingZero-MAgent.py)
 
+Some key arguements for each env: [LINK](https://www.pettingzoo.ml/magent)
+
 
 ## An interactive MAgent battle games: [LINK](https://github.com/PettingZoo-Team/MAgent/blob/master/examples/show_battle_game.py)
 
