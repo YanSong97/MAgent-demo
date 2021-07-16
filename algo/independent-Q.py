@@ -545,77 +545,65 @@ parser.add_argument('--map_size', type = int, default = 15)
 parser.add_argument('--max_cycles', type = int, default = 500)
 parser.add_argument('--env_seed', type = int,  default = 1234)
 parser.add_argument('--render', type = bool, default = True)
-parser.add_argument('--single_handle', type = bool, default = True)
+parser.add_argument('--single_handle', type = bool, default = False)
 parser.add_argument('--print_interval', type = int, default = 500)
-parser.add_argument('--num_steps', type = int, default = 1000000)
+parser.add_argument('--num_steps', type = int, default = 100000)
 
 parser.add_argument('--memory_size', type = int, default = 500000)
 parser.add_argument('--batch_size', type = int, default = 128)
 parser.add_argument('--train_interval', type = int, default = 1)
 parser.add_argument('--train_per_step', type = int, default = 1)
-parser.add_argument('--saving', type = bool, default = True)
+parser.add_argument('--saving', type = bool, default = False)
 
 parser.add_argument('--eval_interval', type = int, default = 5),
 parser.add_argument('--eval_episode', type = int, default = 20)
-parser.add_argument('--tensorboard', type = bool, default = True)
+parser.add_argument('--tensorboard', type = bool, default = False)
 args = parser.parse_args('')
 
 
-map_size = args.map_size
-seed = args.env_seed
 
-env = parallel_env(map_size = map_size, max_cycles = args.max_cycles)       #battle_v3.parallel_env(map_size=map_size, max_cycles=500)
-env.seed(seed)
+
+env = parallel_env(map_size = args.map_size, max_cycles = args.max_cycles)       #battle_v3.parallel_env(map_size=map_size, max_cycles=500)
+env.seed(args.env_seed)
 num_red = 3
 num_blue = 3
 save_model_path = os.getcwd() + '/battle_IL'
 key_list = env.agents
 
-if_render = args.render
-if_single_handle = args.single_handle
-print_interval = args.print_interval
 
 # battle_model = DQN(env, if_single_handle)
 models = {}
 replay_memories = {}
 for i in env.agents:
-    if 'red' in i:
-        obs_dim = env.observation_spaces[i]
-        action_space = env.action_spaces[i]
-        models[i] = DQN_IL(obs_dim, action_space)
+    obs_dim = env.observation_spaces[i]
+    action_space = env.action_spaces[i]
 
+    if 'red' in i:
+        models[i] = DQN_IL(obs_dim, action_space)
         replay_memories[i] = ReplayMemory(capacity=args.memory_size, seed=args.env_seed)
-    # models.append(DQN_IL(obs_dim, action_space))
+    elif 'blue' in i:
+        if not args.single_handle:
+            models[i] = DQN_IL(obs_dim, action_space)
+            replay_memories[i] = ReplayMemory(capacity=args.memory_size, seed=args.env_seed+1)
+    else:
+        raise NotImplementedError
 
 #save_models(save_model_path, models, key_list[:3], 123, save_optim=True)
 #models = load_models(save_model_path, models, key_list[:3], 123, load_optim = True)
 if args.tensorboard:
-    writer = SummaryWriter('runs/{}_IL_{}_{}_{}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), 'Battle',
-                                                             args.map_size, if_single_handle))
+    writer = SummaryWriter('runs/{}_IL_{}_{}_single-agent: {}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), 'Battle',
+                                                             args.map_size, args.single_handle))
 
-
-batch_size = args.batch_size
 updates = 0
-train_interval = args.train_interval
-train_per_step = args.train_per_step
-eval_interval = args.eval_interval
-eval_episode = args.eval_episode
-explore_eps = 0.2
 
-# red_buffer = ReplayMemory(capacity = 500000, seed = seed)
-# blue_buffer = ReplayMemory(capacity = 500000, seed = seed)
-train_loss_list = []
-train_red_reward = []
-train_blue_reward = []
+if args.single_handle:
+    red_train_loss_list,train_red_reward,train_blue_reward = [], [], []
+else:
+    red_train_loss_list, blue_train_loss_list, train_red_reward,train_blue_reward = [], [], [], []
 
-test_red_reward = []
-test_blue_reward = []
-# red_idx_array = env.env.get_agent_id(env.handles[0])
-# blue_idx_array = env.env.get_agent_id(env.handles[1])
+test_red_reward,test_blue_reward = [], []
 
 total_numsteps = 0
-num_steps = 100000
-
 max_killed = 0
 
 # action_space = env.action_spaces
@@ -634,12 +622,16 @@ for i_episode in itertools.count(1):
         key_list = env.agents  # alive agent list
         action_dict = {}
         for agent in key_list:
-            if 'red' in agent:
+            if not args.single_handle:
                 action_dict[agent] = models[agent].choose_action(state[agent])
-            elif 'blue' in agent:
-                action_dict[agent] = np.array([env.action_spaces[agent].sample()])  # single handle
             else:
-                raise NotImplementedError
+
+                if 'red' in agent:
+                    action_dict[agent] = models[agent].choose_action(state[agent])
+                elif 'blue' in agent:
+                    action_dict[agent] = np.array([env.action_spaces[agent].sample()])  # single handle
+                else:
+                    raise NotImplementedError
 
         # action_dict = {key_list[i]: np.array([action_space[key_list[i]].sample()]) for i in range(len(key_list))}
         # action_dict = battle_model.choose_action(state, eps = explore_eps)
@@ -666,6 +658,9 @@ for i_episode in itertools.count(1):
                 # if not if_single_handle:
                 #    blue_buffer.push(state[key], action_dict[key], reward_dict[key], next_state[key],
                 #                float(not done_dict[key]))
+                if not args.single_handle:
+                    replay_memories[key].push(state[key], action_dict[key], reward_dict[key], next_state[key],
+                                              float(not done_dict[key]))
 
                 temp_blue_reward += value
                 # num_blue_reward += 1
@@ -681,25 +676,38 @@ for i_episode in itertools.count(1):
         train_red_reward.append(episode_red_reward)
         train_blue_reward.append(episode_blue_reward)
 
-        if len(replay_memories['red_0']) > batch_size and total_numsteps % train_interval == 0:
-            temp_loss = 0
-            for _ in range(train_per_step):
+        if len(replay_memories['red_0']) > args.batch_size and total_numsteps % args.train_interval == 0:
+            if args.single_handle:
+                red_temp_loss = 0
+            else:
+                red_temp_loss, blue_temp_loss = 0, 0
+
+            for _ in range(args.train_per_step):
 
                 for agent in env.possible_agents:
                     if 'red' in agent:
-                        agent_loss = models[agent].learn(replay_memories[agent], batch_size, updates)
-                        temp_loss += agent_loss
+                        agent_loss = models[agent].learn(replay_memories[agent], args.batch_size, updates)
+                        red_temp_loss += agent_loss
+                    elif ('blue' in agent) and (not args.single_handle):
+                        agent_loss = models[agent].learn(replay_memories[agent], args.batch_size, updates)
+                        blue_temp_loss += agent_loss
+                    else:
+                        pass
 
                 if args.tensorboard:
-                    writer.add_scalar('loss/train (red)', temp_loss, updates)
+                    writer.add_scalar('loss/train (red)', red_temp_loss, updates)
+                    if not args.single_handle:
+                        writer.add_scalar('loss/train (blue)', blue_temp_loss, updates)
                 #        temp_loss = battle_model.learn(red_buffer, batch_size, updates)
 
                 # print('Training loss = ', temp_loss)
                 updates += 1
-            train_loss_list.append(temp_loss / train_per_step)
+            red_train_loss_list.append(red_temp_loss / args.train_per_step)
+            if not args.single_handle:
+                blue_train_loss_list.append(blue_temp_loss/args.train_per_step)
             # print('trained')
 
-        if if_render:
+        if args.render:
             env.render()
 
         state = next_state
@@ -707,7 +715,7 @@ for i_episode in itertools.count(1):
         total_numsteps += 1
         # print('episode_steps', episode_steps)
 
-        if episode_steps % print_interval == 0 or done:
+        if episode_steps % args.print_interval == 0 or done:
             print('Episode {}; {} red killed, reward = {:.3f}; {} blue killed, reward = {:.2f}'.format(episode_steps,
                                                                                                        killed_red,
                                                                                                        episode_red_reward,
@@ -716,21 +724,22 @@ for i_episode in itertools.count(1):
     # print('Episode red reward = {:.5f}, Episode blue reward = {:.5f}'.format(episode_red_reward/episode_steps,
     #                                                                episode_blue_reward/episode_steps))
 
-    if total_numsteps > num_steps:
+    if total_numsteps > args.num_steps:
         break
     if args.tensorboard:
         writer.add_scalar('reward/train (red)', episode_red_reward, i_episode)
+        writer.add_scalar('killed.train (red)', killed_red, i_episode)
         writer.add_scalar('reward/train (blue)', episode_blue_reward, i_episode)
         writer.add_scalar('killed/train (blue)', killed_blue, i_episode)
 
 
-    if i_episode % eval_interval == 0:
+    if i_episode % args.eval_interval == 0:
         average_killed_red = 0
         average_killed_blue = 0
         average_reward_red = 0
         average_reward_blue = 0
 
-        for i in range(eval_episode):
+        for i in range(args.eval_episode):
             done = False
             episode_red_reward = 0
             episode_blue_reward = 0
@@ -747,12 +756,16 @@ for i_episode in itertools.count(1):
                 key_list = env.agents  # alive agent list
                 action_dict = {}
                 for agent in key_list:
-                    if 'red' in agent:
+                    if not args.single_handle:
                         action_dict[agent] = models[agent].choose_action(state[agent])
-                    elif 'blue' in agent:
-                        action_dict[agent] = np.array([env.action_spaces[agent].sample()])  # single handle
                     else:
-                        raise NotImplementedError
+
+                        if 'red' in agent:
+                            action_dict[agent] = models[agent].choose_action(state[agent])
+                        elif 'blue' in agent:
+                            action_dict[agent] = np.array([env.action_spaces[agent].sample()])  # single handle
+                        else:
+                            raise NotImplementedError
 
                 next_state, reward_dict, done_dict, _ = env.step(action_dict)
 
@@ -775,11 +788,11 @@ for i_episode in itertools.count(1):
 
             average_killed_red += killed_red
             average_killed_blue += killed_blue
-        average_killed_red /= eval_episode
-        average_killed_blue /= eval_episode
+        average_killed_red /= args.eval_episode
+        average_killed_blue /= args.eval_episode
 
-        average_reward_red /= eval_episode
-        average_reward_blue /= eval_episode
+        average_reward_red /= args.eval_episode
+        average_reward_blue /= args.eval_episode
         test_red_reward.append(average_reward_red)
         test_blue_reward.append(average_reward_blue)
 
@@ -790,12 +803,16 @@ for i_episode in itertools.count(1):
                                                                                          average_reward_blue))
         if args.tensorboard:
             writer.add_scalar('reward/test (red)', average_reward_red, i_episode)
+            writer.add_scalar('killed/test (red)', average_killed_red, i_episode)
             writer.add_scalar('reward/test (blue)', average_reward_blue, i_episode)
             writer.add_scalar('killed/test (blue)', average_killed_blue, i_episode)
 
 
 
         if average_killed_blue > max_killed and args.saving:
+
+            save_key_list = key_list[:3] if args.single_handle else key_list
+
             save_models(save_model_path, models, key_list[:3], updates)
             max_killed = average_killed_blue
 
