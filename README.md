@@ -20,6 +20,13 @@ Some key arguements for each env: [LINK](https://www.pettingzoo.ml/magent)
 
 Allows you to dispatch your solders at your command.
 
+## baseline models
+
+* Independent-Q learning
+
+
+
+
 
 ## Papers on MAgent
 
