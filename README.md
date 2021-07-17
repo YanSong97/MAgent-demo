@@ -4,7 +4,7 @@ a few attempts on env [MAgent](https://github.com/PettingZoo-Team/MAgent)
 
 DQN model taken from repo: [Jidi AI](https://github.com/jidiai/ai_lib/tree/master/examples/algo/dqn)
 
-# PettingZero-MAgent wrapper
+## PettingZero-MAgent wrapper
 
 a user-friendly wrapper for enviroment *pursuit, battle, battlefield, gather, tiger_deer*. [Repo LINK](https://github.com/PettingZoo-Team/PettingZoo/tree/master/pettingzoo/magent)
 
@@ -16,7 +16,6 @@ a basic demo can be found in [LINK](https://github.com/YanSong97/MAgent-demo/blo
 Some key arguements for each env: [LINK](https://www.pettingzoo.ml/magent)
 
 
-## An interactive MAgent battle games: [LINK](https://github.com/PettingZoo-Team/MAgent/blob/master/examples/show_battle_game.py)
 
 Allows you to dispatch your solders at your command.
 
@@ -41,6 +40,7 @@ Reinforcement Learning via Policy Gradients](https://arxiv.org/pdf/1805.08776.pd
 Learning](https://arxiv.org/pdf/2009.14471.pdf)
 
 
+### An interactive MAgent battle games: [LINK](https://github.com/PettingZoo-Team/MAgent/blob/master/examples/show_battle_game.py)
 
 
 
