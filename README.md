@@ -24,7 +24,9 @@ Allows you to dispatch your solders at your command.
 * Independent-Q learning
 
 
+<img src='https://github.com/YanSong97/MAgent-demo/blob/main/plot/single:double-20x20%20success%20rate.png' width = '400'>
 
+This figure shows the success rate during testing phase, on a 20x20 battle env with 12 agents on each side.
 
 
 ## Papers on MAgent
