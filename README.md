@@ -26,7 +26,13 @@ Allows you to dispatch your solders at your command.
 
 <img src='https://github.com/YanSong97/MAgent-demo/blob/main/plot/single:double-20x20%20success%20rate.png' width = '400'>
 
-This figure shows the success rate during testing phase, on a 20x20 battle env with 12 agents on each side.
+This figure shows the success rate during testing phase, on a 20x20 battle env with 12 agents on each side. The computational time for the single-handle is < 0.5h and around 2 hours for double-handle, on a macbook cpu.
+
+
+<img src='https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20.gif' width = 400>
+
+Animation of two consequtive battle games between red and blue armies with 12 agents each, using IL on both agent groups.  We can rougly see a sign of ‘besige’  'escape'. 
+
 
 
 ## Papers on MAgent
