@@ -31,7 +31,7 @@ This figure shows the success rate (success when either team is eliminated) duri
 
 <img src='https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20.gif' width = 400>
 
-Animation of two consequtive battle games between red and blue armies with 12 agents each, using IL on both agent groups.  We can rougly see a sign of ‘besige’  'escape'. 
+Animation of two consequtive battle games during training between red and blue armies with 12 agents each, using IL on both agent groups.  We can rougly see a sign of ‘besige’  'escape'. 
 
 
 
