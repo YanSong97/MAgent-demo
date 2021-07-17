@@ -11,7 +11,7 @@ from env.battle_env import parallel_env
 from utils import *
 
 parser = argparse.ArgumentParser(description='PyTorch Independent-Q on battle games Args')
-parser.add_argument('--map_size', type = int, default = 18)
+parser.add_argument('--map_size', type = int, default = 20)
 parser.add_argument('--max_cycles', type = int, default = 500)
 parser.add_argument('--env_seed', type = int,  default = 1234)
 parser.add_argument('--render', type = bool, default = True)
@@ -20,14 +20,14 @@ parser.add_argument('--print_interval', type = int, default = 500)
 parser.add_argument('--num_steps', type = int, default = 100000)
 
 parser.add_argument('--memory_size', type = int, default = 500000)
-parser.add_argument('--batch_size', type = int, default = 128)
+parser.add_argument('--batch_size', type = int, default = 32)
 parser.add_argument('--train_interval', type = int, default = 1)
 parser.add_argument('--train_per_step', type = int, default = 1)
 parser.add_argument('--saving', type = bool, default = False)
 
 parser.add_argument('--eval_interval', type = int, default = 5),
 parser.add_argument('--eval_episode', type = int, default = 20)
-parser.add_argument('--tensorboard', type = bool, default = False)
+parser.add_argument('--tensorboard', type = bool, default = True)
 args = parser.parse_args('')
 
 ##########################################  env setup  ##########################################
@@ -74,6 +74,7 @@ max_killed = 0
 
 # action_space = env.action_spaces
 
+
 for i_episode in itertools.count(1):
 
     done = False
@@ -85,6 +86,7 @@ for i_episode in itertools.count(1):
 
     while not done:
 
+        ##############################################  Taking actions    ##############################################
         key_list = env.agents  # alive agent list
         action_dict = {}
         for agent in key_list:
@@ -109,8 +111,8 @@ for i_episode in itertools.count(1):
 
         killed_red, killed_blue = count_alive(env, num_red, num_blue)
 
+        ##############################################  Recording data   ##############################################
         temp_red_reward, temp_blue_reward = 0, 0
-        # num_red_reward, num_blue_reward = 0, 0
         for key, value in reward_dict.items():
             if 'red' in key:
                 # red_buffer.push(state[key], action_dict[key], reward_dict[key], next_state[key],
@@ -142,6 +144,8 @@ for i_episode in itertools.count(1):
         train_red_reward.append(episode_red_reward)
         train_blue_reward.append(episode_blue_reward)
 
+
+############################################## Model training   ##############################################
         if len(replay_memories['red_0']) > args.batch_size and total_numsteps % args.train_interval == 0:
             if args.single_handle:
                 red_temp_loss = 0
@@ -182,23 +186,36 @@ for i_episode in itertools.count(1):
         # print('episode_steps', episode_steps)
 
         if episode_steps % args.print_interval == 0 or done:
-            print('Iteration {}, episode length {}; {} red killed, reward = {:.3f}; {} blue killed, reward = {:.2f}'.format(i_episode,
+            if done and episode_steps < args.max_cycles:
+                if killed_blue == num_blue:
+                    print_line = 'red win'
+                elif killed_red == num_red:
+                    print_line = 'blue win'
+                else:
+                    raise ValueError
+            else:
+                print_line = 'fail'
+
+            print('Iteration {}, episode length {}; {} red killed, reward = {:.3f}; {} blue killed, reward = {:.2f}. {}.'.format(i_episode,
                                                                                                                             episode_steps,
                                                                                                                             killed_red,
                                                                                                                             episode_red_reward,
                                                                                                                             killed_blue,
-                                                                                                                            episode_blue_reward))
+                                                                                                                            episode_blue_reward,
+                                                                                                                            print_line))
     # print('Episode red reward = {:.5f}, Episode blue reward = {:.5f}'.format(episode_red_reward/episode_steps,
     #                                                                episode_blue_reward/episode_steps))
 
     if total_numsteps > args.num_steps:
         break
     if args.tensorboard:
-        writer.add_scalar('reward/train (red)', episode_red_reward, i_episode)
-        writer.add_scalar('killed/train (red)', killed_red, i_episode)
-        writer.add_scalar('reward/train (blue)', episode_blue_reward, i_episode)
-        writer.add_scalar('killed/train (blue)', killed_blue, i_episode)
+        writer.add_scalar('train reward/red', episode_red_reward, i_episode)
+        writer.add_scalar('train killed/red', killed_red, i_episode)
+        writer.add_scalar('train reward/blue', episode_blue_reward, i_episode)
+        writer.add_scalar('train killed/blue', killed_blue, i_episode)
 
+
+    #################################  Model testing   ##############################################
 
     if i_episode % args.eval_interval == 0:
         average_killed_red = 0
@@ -277,10 +294,11 @@ for i_episode in itertools.count(1):
                                                                                          average_reward_blue,
                                                                                          success_rate))
         if args.tensorboard:
-            writer.add_scalar('reward/test (red)', average_reward_red, i_episode)
-            writer.add_scalar('killed/test (red)', average_killed_red, i_episode)
-            writer.add_scalar('reward/test (blue)', average_reward_blue, i_episode)
-            writer.add_scalar('killed/test (blue)', average_killed_blue, i_episode)
+            writer.add_scalar('test reward/red', average_reward_red, i_episode)
+            writer.add_scalar('test killed/red', average_killed_red, i_episode)
+            writer.add_scalar('test reward/blue', average_reward_blue, i_episode)
+            writer.add_scalar('test killed/blue', average_killed_blue, i_episode)
+            writer.add_scalar('test success rate', success_rate, i_episode)
 
 
 
