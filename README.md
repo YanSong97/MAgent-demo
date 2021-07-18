@@ -19,8 +19,8 @@ Some key arguements for each env: [LINK](https://www.pettingzoo.ml/magent)
 
 ## baseline models
 
-* Independent-Q learning
-* Parameter-sharing Q learning
+* Independent-Q learning  (IL)
+* Parameter-sharing Q learning  (PS)
 
 ### Comparing success rate: (success when either team is eliminated)
 
