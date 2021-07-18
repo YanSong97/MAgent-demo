@@ -22,14 +22,23 @@ Allows you to dispatch your solders at your command.
 ## baseline models
 
 * Independent-Q learning
+* Parameter-sharing Q learning
+
+### Compare success rate:
+
+<img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/battle-20x20%20comparison.png' width = 500>
 
 
-<img src='https://github.com/YanSong97/MAgent-demo/blob/main/plot/single:double-20x20%20success%20rate.png' width = '400'>
+### Render:
+
+IL: <img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20-IL.gif' width = 400>      PS-Q: <img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20-PSdqn.gif' width = 400>
+
+
+
 
 This figure shows the success rate (success when either team is eliminated) during testing phase, on a 20x20 battle env (episode length=500) with 12 agents on each side. The computational time for the single-handle is < 0.5h and around 2 hours for double-handle, on a macbook cpu.
 
 
-<img src='https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20.gif' width = 400>
 
 Animation of two consequtive battle games during training between red and blue armies with 12 agents each, using IL on both agent groups.  We can rougly see a sign of ‘besige’  'escape'. 
 
