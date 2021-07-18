@@ -36,7 +36,7 @@ Some key arguements for each env: [LINK](https://www.pettingzoo.ml/magent)
 
 ### Render(double-handle):
 
-IL: <img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20-IL.gif' width = 400>      PS-Q: <img src = https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20-PSdqn.gif width = 400>
+IL: <img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20-IL.gif' width = 400>  PS: <img src = https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20-PSdqn.gif width = 400>
 
 We can rougly see the sign of ‘besige’ and 'escape'. 
 
