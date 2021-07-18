@@ -19,8 +19,8 @@ Some key arguements for each env: [LINK](https://www.pettingzoo.ml/magent)
 
 ## baseline models
 
-* Independent-Q learning  (IL)
-* Parameter-sharing Q learning  (PS)
+* Independent-Q learning  (IL): individual DQN for each single agent
+* Parameter-sharing Q learning  (PS): one DQN for agents in the same team
 
 ### Comparing success rate: (success when either team is eliminated)
 
