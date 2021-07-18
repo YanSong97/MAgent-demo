@@ -17,8 +17,6 @@ Some key arguements for each env: [LINK](https://www.pettingzoo.ml/magent)
 
 
 
-Allows you to dispatch your solders at your command.
-
 ## baseline models
 
 * Independent-Q learning
@@ -28,10 +26,12 @@ Allows you to dispatch your solders at your command.
 
 <img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/battle-20x20%20comparison.png' width = 500>
 
+**Brown:** parameter-sharing DQN, single-handle(ony model one agent group and the other act randomly); **Blue:** Independent-DQN, single-handle; **Green:** Independent-Q, double-handle(model both agent groups); **Red:** parameter-sharing DQN, double-handle 
+
 
 ### Render:
 
-IL: <img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20-IL.gif' width = 400>      PS-Q: <img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20-PSdqn.gif' width = 400>
+IL: <img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20-IL.gif' width = 400>      PS-Q: <img src = https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20-PSdqn.gif width = 400>
 
 
 
@@ -59,6 +59,6 @@ Learning](https://arxiv.org/pdf/2009.14471.pdf)
 
 ### An interactive MAgent battle games: [LINK](https://github.com/PettingZoo-Team/MAgent/blob/master/examples/show_battle_game.py)
 
-
+Allows you to dispatch your solders at your command.
 
 
