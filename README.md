@@ -22,25 +22,23 @@ Some key arguements for each env: [LINK](https://www.pettingzoo.ml/magent)
 * Independent-Q learning
 * Parameter-sharing Q learning
 
-### Compare success rate:
+### Comparing success rate: (success when either team is eliminated)
+
+20x20 battle game, 24 number of agents in total, maximum episode length = 500
 
 <img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/battle-20x20%20comparison.png' width = 500>
 
 **Brown:** parameter-sharing DQN, single-handle(ony model one agent group and the other act randomly); **Blue:** Independent-DQN, single-handle; **Green:** Independent-Q, double-handle(model both agent groups); **Red:** parameter-sharing DQN, double-handle 
 
+**Computational consideration:** Single-handle models: <0.5h; double-handle models: around 2h.
 
-### Render:
+
+
+### Render(double-handle):
 
 IL: <img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20-IL.gif' width = 400>      PS-Q: <img src = https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20-PSdqn.gif width = 400>
 
-
-
-
-This figure shows the success rate (success when either team is eliminated) during testing phase, on a 20x20 battle env (episode length=500) with 12 agents on each side. The computational time for the single-handle is < 0.5h and around 2 hours for double-handle, on a macbook cpu.
-
-
-
-Animation of two consequtive battle games during training between red and blue armies with 12 agents each, using IL on both agent groups.  We can rougly see a sign of ‘besige’  'escape'. 
+We can rougly see the sign of ‘besige’ and 'escape'. 
 
 
 
