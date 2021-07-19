@@ -15,6 +15,9 @@ a basic demo can be found in [LINK](https://github.com/YanSong97/MAgent-demo/blo
 
 Some key arguements for each env: [LINK](https://www.pettingzoo.ml/magent)
 
+## Actions
+
+
 
 
 ## baseline models
