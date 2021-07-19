@@ -17,8 +17,9 @@ Some key arguements for each env: [LINK](https://www.pettingzoo.ml/magent)
 
 ## Actions
 
+<img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/action.png' width  = 400>
 
-
+The actor for 'turning' is disabled by default.
 
 ## baseline models
 
