@@ -10,12 +10,14 @@ max_cycles_default = 1000
 KILL_REWARD = 5
 minimap_mode_default = False
 default_reward_args = dict(step_reward=-0.005, dead_penalty=-0.1, attack_penalty=-0.1, attack_opponent_reward=0.2)
+shuffle_init_default = False
 
 
-def parallel_env(map_size=default_map_size, max_cycles=max_cycles_default, minimap_mode=minimap_mode_default, extra_features=False, **reward_args):
+def parallel_env(map_size=default_map_size, max_cycles=max_cycles_default, minimap_mode=minimap_mode_default, shuffle_init=shuffle_init_default,
+                 extra_features=False, **reward_args):
     env_reward_args = dict(**default_reward_args)
     env_reward_args.update(reward_args)
-    return _parallel_env(map_size, minimap_mode, env_reward_args, max_cycles, extra_features)
+    return _parallel_env(map_size, minimap_mode, env_reward_args, max_cycles, extra_features, shuffle_init)
 
 
 def raw_env(map_size=default_map_size, max_cycles=max_cycles_default, minimap_mode=minimap_mode_default, extra_features=False, **reward_args):
@@ -60,22 +62,25 @@ def get_config(map_size, minimap_mode, step_reward, dead_penalty, attack_penalty
 class _parallel_env(magent_parallel_env, EzPickle):
     metadata = {'render.modes': ['human', 'rgb_array'], 'name': "battle_v3"}
 
-    def __init__(self, map_size, minimap_mode, reward_args, max_cycles, extra_features):
+    def __init__(self, map_size, minimap_mode, reward_args, max_cycles, extra_features, shuffle_init):
         EzPickle.__init__(self, map_size, minimap_mode, reward_args, max_cycles, extra_features)
         assert map_size >= 12, "size of map must be at least 12"
         env = magent.GridWorld(get_config(map_size, minimap_mode, **reward_args), map_size=map_size)
         self.leftID = 0
         self.rightID = 1
+        self.shuffle = shuffle_init    #shuffle initial position of agent in the same group
         reward_vals = np.array([KILL_REWARD] + list(reward_args.values()))
         reward_range = [np.minimum(reward_vals, 0).sum(), np.maximum(reward_vals, 0).sum()]
         names = ["red", "blue"]
         super().__init__(env, env.get_handles(), names, map_size, max_cycles, reward_range, minimap_mode, extra_features)
 
+
+
     def generate_map(self):
         env, map_size, handles = self.env, self.map_size, self.handles
         """ generate a map, which consists of two squares of agents"""
         width = height = map_size
-        init_num = map_size * map_size * 0.04
+        init_num = map_size * map_size * 0.05
         gap = 3
 
         #self.leftID, self.rightID = self.rightID, self.leftID           #switching initial position
@@ -89,6 +94,12 @@ class _parallel_env(magent_parallel_env, EzPickle):
                 if 0 < x < width - 1 and 0 < y < height - 1:
                     pos.append([x, y, 0])
         team1_size = len(pos)
+
+        if self.shuffle:
+            rand_pos = np.array(pos)
+            np.random.shuffle(rand_pos)
+            pos = list(rand_pos)
+
         env.add_agents(handles[self.leftID], method="custom", pos=pos)
 
         # right
@@ -101,6 +112,12 @@ class _parallel_env(magent_parallel_env, EzPickle):
                     pos.append([x, y, 0])
 
         pos = pos[:team1_size]
+
+        if self.shuffle:
+            rand_pos = np.array(pos)
+            np.random.shuffle(rand_pos)
+            pos = list(rand_pos)
+
         env.add_agents(handles[self.rightID], method="custom", pos=pos)
 
 
