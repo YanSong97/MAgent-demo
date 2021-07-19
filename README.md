@@ -24,7 +24,7 @@ Some key arguements for each env: [LINK](https://www.pettingzoo.ml/magent)
 
 ### Comparing success rate: (success when either team is eliminated)
 
-20x20 battle game, 24 number of agents in total, maximum episode length = 500
+20x20 battle game, 12 vs. 12, maximum episode length = 500, initial position fixed.
 
 <img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/battle-20x20%20comparison.png' width = 500>
 
