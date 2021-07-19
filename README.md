@@ -23,7 +23,7 @@ The actor for 'turning' is disabled by default.
 
 ## Observation
 
-The observation has shape [view_size x view_size x 5] by default, the last dimension consist of: 0--wall position; 1--group one position; 2--group one HP; 3---group two position; 4--group two HP.
+The observation has shape [view_size x view_size x 5] by default, the last dimension consist of: 0--wall position; 1--group one position; 2--group one HP; 3---group two position; 4--group two HP. At global state, group one refers to red and group two to blue, whereas from each agent perspective, group one refers to agents in its own team and group two refers to its opponents.
 
 ## baseline models
 
