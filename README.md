@@ -21,6 +21,10 @@ Some key arguements for each env: [LINK](https://www.pettingzoo.ml/magent)
 
 The actor for 'turning' is disabled by default.
 
+## Observation
+
+The observation has shape [view_size x view_size x 5] by default, the last dimension consist of: 0--wall position; 1--group one position; 2--group one HP; 3---group two position; 4--group two HP.
+
 ## baseline models
 
 * Independent-Q learning  (IL): individual DQN for each single agent
