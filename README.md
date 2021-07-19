@@ -30,7 +30,7 @@ Some key arguements for each env: [LINK](https://www.pettingzoo.ml/magent)
 
 **Brown:** parameter-sharing DQN, single-handle(ony model one agent group and the other act randomly); **Blue:** Independent-DQN, single-handle; **Green:** Independent-Q, double-handle(model both agent groups); **Red:** parameter-sharing DQN, double-handle 
 
-**Computational consideration:** Single-handle models: <0.5h; double-handle models: around 2h.
+**Computational consideration:** (On a macbook pro CPU) Single-handle models: <0.5h; double-handle models: around 2h.
 
 
 
