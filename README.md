@@ -19,7 +19,7 @@ Some key arguements for each env: [LINK](https://www.pettingzoo.ml/magent)
 
 <img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/action1.png' width  = 400>
 
-The actor for 'turning' is disabled by default.
+action space: Discrete(21) as the action for 'turning' is disabled by default.
 
 ## Observation
 
@@ -47,6 +47,10 @@ The observation has shape [view_size x view_size x 5] by default, the last dimen
 IL: <img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20-IL.gif' width = 400>  PS: <img src = https://github.com/YanSong97/MAgent-demo/blob/main/plot/double-20x20-PSdqn.gif width = 400>
 
 We can rougly see a sign of ‘besige’ and 'escape'. 
+
+## Against fixed policy opponent
+
+A more complext env, for example, when blue team follows some attack rules: if opponents are within attackable range, then attack,  otherwise act randomly, it put red team agents initially at a disadvantage as the blue team agents will dominate the battle during early stage of training.
 
 
 
