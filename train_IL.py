@@ -12,11 +12,12 @@ from utils import *
 
 parser = argparse.ArgumentParser(description='PyTorch Independent-Q on battle games Args')
 parser.add_argument('--map_size', type = int, default = 15)
-parser.add_argument('--max_cycles', type = int, default = 500)
+parser.add_argument('--max_cycles', type = int, default = 500, help = 'maximun length of each episode')
 parser.add_argument('--seed_maxsize', type = int,  default = 30, help = 'randly set the seed at each episode')
 parser.add_argument('--shuffle_init', type = bool, default = False, help='whether to randomly shuffle the postion of agents in the same team')
 parser.add_argument('--render', type = bool, default = False)
-parser.add_argument('--single_handle', type = bool, default = True)
+parser.add_argument('--single_handle', type = bool, default = True, help = 'if True, only model one team')
+parser.add_argument('--advanced_policy', type = bool, default = False, help ='if true, the blue team has a fixed policy, attacking opponent within randge or act randomlt')
 parser.add_argument('--print_interval', type = int, default = 500)
 parser.add_argument('--num_steps', type = int, default = 10000000)
 
@@ -104,8 +105,11 @@ for i_episode in itertools.count(1):
                 if 'red' in agent:
                     action_dict[agent] = models[agent].choose_action(state[agent])
                 elif 'blue' in agent:
-                    #action_dict[agent] = np.array([env.action_spaces[agent].sample()])  # single handle
-                    action_dict[agent] = blue_policy(state[agent], env.action_spaces[agent])
+                    if args.advanced_policy:
+                        action_dict[agent] = blue_policy(state[agent], env.action_spaces[agent])
+                    else:
+                        action_dict[agent] = np.array([env.action_spaces[agent].sample()])  # completely random
+
                 else:
                     raise NotImplementedError
 
@@ -256,8 +260,11 @@ for i_episode in itertools.count(1):
                         if 'red' in agent:
                             action_dict[agent] = models[agent].choose_action(state[agent])
                         elif 'blue' in agent:
-                            #action_dict[agent] = np.array([env.action_spaces[agent].sample()])  # single handle
-                            action_dict[agent] = blue_policy(state[agent], env.action_spaces[agent])
+                            if args.advanced_policy:
+                                action_dict[agent] = blue_policy(state[agent], env.action_spaces[agent])
+                            else:
+                                action_dict[agent] = np.array([env.action_spaces[agent].sample()])  # completely random
+
                         else:
                             raise NotImplementedError
 
