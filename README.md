@@ -55,7 +55,7 @@ A more complext env, for example, when blue team follows some attack rules: if o
 
 <img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/fixed%20policy.png' width = 600>  
 
-**red:** IL, **grey:** PS; 
+**red:** IL, **grey:** PS; 3v3 battle game.
 
 Compared to completely randomised oppoent policy, such advanced policy requires larger amount of computational cost for red team to learn to combat, for example as the figure illustrate, the amount of episodes goes up to >10k whereas for completely random policy only 160 is needed. training time: 6h on CPU.
 
