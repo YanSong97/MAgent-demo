@@ -11,19 +11,20 @@ from env.battle_env import parallel_env
 from utils import *
 
 parser = argparse.ArgumentParser(description='PyTorch Independent-Q on battle games Args')
-parser.add_argument('--map_size', type = int, default = 20)
+parser.add_argument('--map_size', type = int, default = 15)
 parser.add_argument('--max_cycles', type = int, default = 500)
-parser.add_argument('--env_seed', type = int,  default = 1234)
-parser.add_argument('--render', type = bool, default = True)
-parser.add_argument('--single_handle', type = bool, default = False)
+parser.add_argument('--seed_maxsize', type = int,  default = 30, help = 'randly set the seed at each episode')
+parser.add_argument('--shuffle_init', type = bool, default = False, help='whether to randomly shuffle the postion of agents in the same team')
+parser.add_argument('--render', type = bool, default = False)
+parser.add_argument('--single_handle', type = bool, default = True)
 parser.add_argument('--print_interval', type = int, default = 500)
-parser.add_argument('--num_steps', type = int, default = 100000)
+parser.add_argument('--num_steps', type = int, default = 10000000)
 
 parser.add_argument('--memory_size', type = int, default = 500000)
 parser.add_argument('--batch_size', type = int, default = 32)
 parser.add_argument('--train_interval', type = int, default = 1)
 parser.add_argument('--train_per_step', type = int, default = 1)
-parser.add_argument('--saving', type = bool, default = True)
+parser.add_argument('--saving', type = bool, default = False)
 
 parser.add_argument('--eval_interval', type = int, default = 5),
 parser.add_argument('--eval_episode', type = int, default = 20)
@@ -31,11 +32,12 @@ parser.add_argument('--tensorboard', type = bool, default = True)
 args = parser.parse_args('')
 
 ##########################################  env setup  ##########################################
-env = parallel_env(map_size = args.map_size, max_cycles = args.max_cycles)       #battle_v3.parallel_env(map_size=map_size, max_cycles=500)
-env.seed(args.env_seed)
+env = parallel_env(map_size = args.map_size, max_cycles = args.max_cycles,shuffle_init=args.shuffle_init)       #battle_v3.parallel_env(map_size=map_size, max_cycles=500)
+#env.seed(args.env_seed)
+env.seed(random.randint(0, args.seed_maxsize))
 num_red = len(env.agents)/2
 num_blue = num_red
-save_model_path = os.getcwd() + '/save_models'
+save_model_path = os.getcwd() + '/save_fixed'
 key_list = env.agents
 print(len(key_list))
 ##########################################  model setup  ##########################################
@@ -47,20 +49,22 @@ for i in env.agents:
 
     if 'red' in i:
         models[i] = DQN_IL(obs_dim, action_space)
-        replay_memories[i] = ReplayMemory(capacity=args.memory_size, seed=args.env_seed)
+        #replay_memories[i] = ReplayMemory(capacity=args.memory_size, seed=args.env_seed)
+        replay_memories[i] = ReplayMemory(capacity=args.memory_size, seed = random.randint(0, 30))
     elif 'blue' in i:
         if not args.single_handle:
             models[i] = DQN_IL(obs_dim, action_space)
-            replay_memories[i] = ReplayMemory(capacity=args.memory_size, seed=args.env_seed+1)
+            replay_memories[i] = ReplayMemory(capacity=args.memory_size, seed= random.randint(0, 30))
     else:
         raise NotImplementedError
 
 
 ##########################################  train-test iteration  ##########################################
 if args.tensorboard:
-    writer = SummaryWriter('runs/{}_IL_{}_{}_single-agent: {}, agent_num {}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+    writer = SummaryWriter('runs/{}_IL_{}_{}_single-agent: {}, agent_num {}, random init {}, fixed blue policy'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                                                                                     'Battle',args.map_size, args.single_handle,
-                                                                                    len(key_list)))
+                                                                                    len(key_list),
+                                                                                    args.shuffle_init))
 
 updates = 0
 
@@ -84,6 +88,7 @@ for i_episode in itertools.count(1):
     episode_blue_reward = 0
 
     episode_steps = 0
+    env.seed(random.randint(0, args.seed_maxsize))
     state = env.reset()
 
     while not done:
@@ -99,7 +104,8 @@ for i_episode in itertools.count(1):
                 if 'red' in agent:
                     action_dict[agent] = models[agent].choose_action(state[agent])
                 elif 'blue' in agent:
-                    action_dict[agent] = np.array([env.action_spaces[agent].sample()])  # single handle
+                    #action_dict[agent] = np.array([env.action_spaces[agent].sample()])  # single handle
+                    action_dict[agent] = blue_policy(state[agent], env.action_spaces[agent])
                 else:
                     raise NotImplementedError
 
@@ -235,6 +241,7 @@ for i_episode in itertools.count(1):
             episode_blue_killed = 0
 
             episode_steps = 0
+            env.seed(random.randint(0, args.seed_maxsize))
             state = env.reset()
 
             while not done:
@@ -249,7 +256,8 @@ for i_episode in itertools.count(1):
                         if 'red' in agent:
                             action_dict[agent] = models[agent].choose_action(state[agent])
                         elif 'blue' in agent:
-                            action_dict[agent] = np.array([env.action_spaces[agent].sample()])  # single handle
+                            #action_dict[agent] = np.array([env.action_spaces[agent].sample()])  # single handle
+                            action_dict[agent] = blue_policy(state[agent], env.action_spaces[agent])
                         else:
                             raise NotImplementedError
 
@@ -304,7 +312,7 @@ for i_episode in itertools.count(1):
 
 
         #if average_killed_blue > max_killed and args.saving:
-        if success_rate > max_success_rate:
+        if success_rate > max_success_rate and args.saving:
 
             save_key_list = key_list[:len(key_list)/2] if args.single_handle else key_list
 

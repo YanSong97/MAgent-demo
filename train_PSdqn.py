@@ -13,13 +13,16 @@ from utils import *
 
 
 parser = argparse.ArgumentParser(description='PyTorch PS-DQN on battle games Args')
-parser.add_argument('--map_size', type = int, default = 20)
+parser.add_argument('--map_size', type = int, default = 15)
 parser.add_argument('--max_cycles', type = int, default = 500)
-parser.add_argument('--env_seed', type = int,  default = 1234)
-parser.add_argument('--render', type = bool, default = True)
-parser.add_argument('--single_handle', type = bool, default = False)
+parser.add_argument('--seed_maxsize', type = int,  default = 30, help = 'randly set the seed at each episode')
+parser.add_argument('--shuffle_init', type = bool, default = False, help='whether to randomly shuffle the postion of agents in the same team')
+#parser.add_argument('--env_seed', type = int,  default = 1234)
+parser.add_argument('--render', type = bool, default = False)
+parser.add_argument('--single_handle', type = bool, default = True, help = 'only model red team and set the blue at random')
+parser.add_argument('--advanced_policy', type = bool, default = True, help ='if true, the blue team has a fixed policy, attacking opponent within randge or act randomlt')
 parser.add_argument('--print_interval', type = int, default = 500)
-parser.add_argument('--num_steps', type = int, default = 200000)
+parser.add_argument('--num_steps', type = int, default = 2000000)
 
 parser.add_argument('--memory_size', type = int, default = 500000)
 parser.add_argument('--batch_size', type = int, default = 32)
@@ -35,7 +38,8 @@ args = parser.parse_args('')
 
 
 env = parallel_env(map_size = args.map_size, max_cycles = args.max_cycles)       #battle_v3.parallel_env(map_size=map_size, max_cycles=500)
-env.seed(args.env_seed)
+#env.seed(args.env_seed)
+env.seed(random.randint(0, args.seed_maxsize))
 num_red = len(env.agents)/2
 num_blue = num_red
 save_model_path = os.getcwd() + '/save_PSdqn'
@@ -46,13 +50,15 @@ models = {'red': DQN_IL(obs_dim = env.observation_spaces['red_0'], action_space=
           'blue': None if args.single_handle else DQN_IL(obs_dim = env.observation_spaces['blue_0'],
                                                                     action_space= env.action_spaces['blue_0'])}
 
-replay_memories = {'red': (ReplayMemory(capacity=args.memory_size, seed = args.env_seed)),
-            'blue': None if args.single_handle else ReplayMemory(capacity=args.memory_size, seed = args.env_seed)}
+replay_memories = {'red': (ReplayMemory(capacity=args.memory_size, seed = random.randint(0, args.seed_maxsize))),
+            'blue': None if args.single_handle else ReplayMemory(capacity=args.memory_size, seed = random.randint(0, args.seed_maxsize))}
 
 if args.tensorboard:
-    writer = SummaryWriter('runs/{}_PSdqn_{}_{}_single-agent: {}, agent_num {}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+    writer = SummaryWriter('runs/{}_PSdqn_{}_{}_single-agent: {}, agent_num {}, shuffle init {}, fixed blue policy {}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                                                                                     'Battle',args.map_size, args.single_handle,
-                                                                                    len(key_list)))
+                                                                                    len(key_list),
+                                                                                    args.shuffle_init,
+                                                                                    args.advanced_policy))
 
 updates = 0
 if args.single_handle:
@@ -72,6 +78,7 @@ for i_episode in itertools.count(1):
     episode_blue_reward = 0
 
     episode_steps = 0
+    env.seed(random.randint(0, args.seed_maxsize))
     state = env.reset()
 
     while not done:
@@ -85,7 +92,11 @@ for i_episode in itertools.count(1):
                 action_dict[agent] = models['red'].choose_action(state[agent])
             elif 'blue' in agent:
                 if args.single_handle:
-                    action_dict[agent] = np.array([env.action_spaces[agent].sample()])
+                    #action_dict[agent] = np.array([env.action_spaces[agent].sample()])
+                    if args.advanced_policy:
+                        action_dict[agent] = blue_policy(state[agent], env.action_spaces[agent])
+                    else:
+                        action_dict[agent] = np.array([env.action_spaces[agent].sample()])
                 else:
                     action_dict[agent] = models['blue'].choose_action(state[agent])
             else:
@@ -216,6 +227,7 @@ for i_episode in itertools.count(1):
             episode_blue_killed = 0
 
             episode_steps = 0
+            env.seed(random.randint(0, args.seed_maxsize))
             state = env.reset()
 
             while not done:
@@ -228,8 +240,13 @@ for i_episode in itertools.count(1):
                     if 'red' in agent:
                         action_dict[agent] = models['red'].choose_action(state[agent])
                     elif 'blue' in agent:
+
                         if args.single_handle:
-                            action_dict[agent] = np.array([env.action_spaces[agent].sample()])
+                            if args.advanced_policy:
+                                action_dict[agent] = blue_policy(state[agent], env.action_spaces[agent])
+                            else:
+                                action_dict[agent] = np.array([env.action_spaces[agent].sample()])
+                            #action_dict[agent] = np.array([env.action_spaces[agent].sample()])
                         else:
                             action_dict[agent] = models['blue'].choose_action(state[agent])
                     else:
