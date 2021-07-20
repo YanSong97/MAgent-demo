@@ -37,7 +37,7 @@ class ReplayMemory:
         return len(self.buffer)
 
 
-def save_models(save_path, model_list, model_name, updates, save_optim=True):
+def save_models(save_path, model_list, model_name, updates, save_optim):
     save_dict = {}
     for i in range(len(model_name)):
         save_dict[model_name[i]] = model_list[model_name[i]].critic.state_dict()
@@ -56,4 +56,29 @@ def load_models(load_path, model_list, model_name, updates, load_optim):
 
     print('Loaded')
     return model_list
+
+
+attack_dict = {(5, 5): 13, (6, 5): 14, (7, 5): 15, (5, 6): 16, (7, 6): 17, (5, 7): 18, (6, 7): 19, (7, 7): 20}  # coord
+attack_coord = list(attack_dict.keys())
+
+def blue_policy(state, action_space):
+    """
+    state: [13,13,5]
+    """
+    opponent_state = state[:, :, 3]
+    action_list = []
+    for i in attack_coord:
+        coord1, coord2 = i
+        if opponent_state[coord2, coord1] > 0:
+            action_list.append(attack_dict[i])
+    #print(action_list)
+    if len(action_list) == 0:
+        return np.array(action_space.sample())
+    else:
+        return np.random.choice(action_list, 1)
+
+
+
+
+
 
