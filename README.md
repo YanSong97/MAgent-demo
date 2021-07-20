@@ -53,6 +53,13 @@ We can rougly see a sign of ‘besige’ and 'escape'.
 A more complext env, for example, when blue team follows some attack rules: if opponents are within attackable range, then attack,  otherwise act randomly, it put red team agents initially at a disadvantage as the blue team agents will dominate the battle during early stage of training.
 
 
+<img src = 'https://github.com/YanSong97/MAgent-demo/blob/main/plot/fixed%20policy.png' width = 600>  
+
+**red:** IL, **grey:** PS; 
+
+Compared to completely randomised oppoent policy, such advanced policy requires larger amount of computational cost for red team to learn to combat, for example as the figure illustrate, the amount of episodes goes up to >10k whereas for completely random policy only 160 is needed. training time: 6h on CPU.
+
+
 
 ## Papers on MAgent
 
