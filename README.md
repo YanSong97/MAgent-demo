@@ -29,7 +29,7 @@ The observation has shape [view_size x view_size x 5] by default, the last dimen
 
 * Independent-Q learning  (IL): individual DQN for each single agent
 * Parameter-sharing Q learning  (PS): one DQN for agents in the same team
-* MADDPG: We exclude MADDPG/MAAC as baselines, as the framework of centralized critic cannot deal with the varying number of agents for the battle.
+* MADDPG: Hard to train, especially in discrete action case; the number of agents varies during rollout which can also cause troubles
 
 ### Comparing success rate: (success when either team is eliminated)
 
